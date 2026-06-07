@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="mobile-web-app-capable" content="yes" />
 <title>Complæxity HTML Prototype v4</title>
 <style>
   :root { --bg:#0a0a0a; --fg:#f4f4f4; --muted:rgba(255,255,255,.68); --panel:rgba(255,255,255,.08); }
@@ -139,6 +142,90 @@
     }
   }
 
+
+  /* v10: exhibition fullscreen / iPad kiosk view */
+  html, body {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    background: #000;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #app {
+    display: block !important;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: #000;
+  }
+
+  .topbar,
+  .bottombar,
+  #miniControls {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  #stage {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+    background: #000 !important;
+  }
+
+  canvas {
+    max-width: none !important;
+    max-height: none !important;
+    width: auto !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    box-shadow: none !important;
+    background: #fff;
+    transform: scale(2) !important;
+    transform-origin: center center !important;
+  }
+
+  #overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 20 !important;
+    background: #000 !important;
+  }
+
+  #overlayCard {
+    max-width: min(520px, 82vw) !important;
+    background: rgba(18,18,18,.92) !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    box-shadow: none !important;
+  }
+
+  #overlay p {
+    font-size: 13px !important;
+  }
+
+
+  /* v10 inverted: black background / white text */
+  canvas {
+    filter: invert(1) !important;
+    background: #000 !important;
+  }
+
 </style>
 </head>
 <body>
@@ -146,7 +233,7 @@
   <div class="topbar"><div class="chip" id="pageLabel">page 1 / 66</div><div class="chip mono" id="statusLabel">[SYSTEM] standby</div></div>
   <div id="stage"><canvas id="pageCanvas"></canvas>
     <div id="overlay"><div id="overlayCard">
-      <h1>Complæxity HTML prototype v9 responsive 2x</h1>
+      <h1>Complæxity HTML prototype v10 exhibition fullscreen inverted</h1>
       <p>첫 페이지는 표지처럼 즉시 표시되고, 본문은 실제 타이핑에 가깝게 일정한 속도로 왼쪽에서 오른쪽 순서로 생성됩니다. 짧고 강한 글리치, 페이지 전환 직전 텍스트 잔상, 둔탁한 키보드 타건음을 반영했습니다.</p>
       <p>재생 중 스페이스바를 누르거나 화면을 터치하면 다음 페이지로 넘어갑니다. 사운드는 시작 버튼을 눌러야 재생됩니다.</p>
       <div id="controls"><button class="primary" id="startBtn">시작 / 소리 포함</button><button class="secondary" id="muteBtn">무음으로 보기</button></div>
@@ -485,7 +572,8 @@ window.INLINE_IMAGE_MAP = {"page_001.png": "data:image/png;base64,iVBORw0KGgoAAA
 
   function updateProgress(){ const total=PAGES.length||1; const pagePart=currentIndex/total; const local=clamp((performance.now()-phaseStart)/phaseDuration,0,1)/total; progressBar.style.width=`${Math.min(100,(pagePart+local)*100)}%`; }
 
-  function startSequence(withAudio){
+  function enterFullscreen(){ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }
+  function startSequence(withAudio){ enterFullscreen();
     if (withAudio) ensureAudio();
     audioEnabled=!!withAudio;
     overlay.classList.add('hidden'); miniControls.classList.remove('hidden');
@@ -494,7 +582,7 @@ window.INLINE_IMAGE_MAP = {"page_001.png": "data:image/png;base64,iVBORw0KGgoAAA
   function finishSequence(){
     paused=true; overlay.classList.remove('hidden');
     document.querySelector('#overlay h1').textContent='재생이 완료되었습니다';
-    document.querySelector('#overlay p').innerHTML='v9 responsive 2x HTML 시안의 전체 재생이 끝났습니다.<br>반복 재생 버전입니다.';
+    document.querySelector('#overlay p').innerHTML='v10 exhibition fullscreen HTML 시안의 전체 재생이 끝났습니다.<br>반복 재생 버전입니다.';
     startBtn.textContent='다시 시작 / 소리 포함'; muteBtn.textContent='무음으로 다시 보기'; progressBar.style.width='100%'; statusLabel.textContent='[SYSTEM] reconnect complete';
   }
 
